@@ -1,0 +1,263 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="suv_vehicle">
+    <pose>0 0 0 0 0 0</pose>
+    <static>false</static>
+
+    <link name="chassis">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1500</mass>
+        <inertia>
+          <ixx>450</ixx>
+          <iyy>2100</iyy>
+          <izz>2300</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="chassis_collision">
+        <pose>0 0 0.6 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.2 1.8 1.2</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="chassis_visual">
+        <pose>0 0 0 0 0 -1.57079632679</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/suv.obj</uri>
+            <scale>0.06 0.06 0.06</scale>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+
+    <link name="front_left_steering_link">
+      <pose>1.4 0.85 0.35 0 0 0</pose>
+      <inertial>
+        <mass>10</mass>
+        <inertia>
+          <ixx>0.2</ixx>
+          <iyy>0.2</iyy>
+          <izz>0.2</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <link name="front_right_steering_link">
+      <pose>1.4 -0.85 0.35 0 0 0</pose>
+      <inertial>
+        <mass>10</mass>
+        <inertia>
+          <ixx>0.2</ixx>
+          <iyy>0.2</iyy>
+          <izz>0.2</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <link name="front_left_wheel">
+      <pose>1.4 0.85 0.35 1.5708 0 0</pose>
+      <inertial>
+        <mass>20</mass>
+        <inertia>
+          <ixx>0.6</ixx>
+          <iyy>0.6</iyy>
+          <izz>0.6</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="front_left_wheel_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.35</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      
+    </link>
+
+    <link name="front_right_wheel">
+      <pose>1.4 -0.85 0.35 1.5708 0 0</pose>
+      <inertial>
+        <mass>20</mass>
+        <inertia>
+          <ixx>0.6</ixx>
+          <iyy>0.6</iyy>
+          <izz>0.6</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="front_right_wheel_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.35</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      
+    </link>
+
+    <link name="rear_left_wheel">
+      <pose>-1.4 0.85 0.35 1.5708 0 0</pose>
+      <inertial>
+        <mass>20</mass>
+        <inertia>
+          <ixx>0.6</ixx>
+          <iyy>0.6</iyy>
+          <izz>0.6</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="rear_left_wheel_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.35</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      
+    </link>
+
+    <link name="rear_right_wheel">
+      <pose>-1.4 -0.85 0.35 1.5708 0 0</pose>
+      <inertial>
+        <mass>20</mass>
+        <inertia>
+          <ixx>0.6</ixx>
+          <iyy>0.6</iyy>
+          <izz>0.6</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="rear_right_wheel_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.35</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      
+    </link>
+
+    <joint name="front_left_wheel_steering_joint" type="revolute">
+      <parent>chassis</parent>
+      <child>front_left_steering_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.6</lower>
+          <upper>0.6</upper>
+          <velocity>1.0</velocity>
+          <effort>50</effort>
+        </limit>
+      </axis>
+    </joint>
+
+    <joint name="front_right_wheel_steering_joint" type="revolute">
+      <parent>chassis</parent>
+      <child>front_right_steering_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.6</lower>
+          <upper>0.6</upper>
+          <velocity>1.0</velocity>
+          <effort>50</effort>
+        </limit>
+      </axis>
+    </joint>
+
+    <joint name="front_left_wheel_joint" type="revolute">
+      <parent>front_left_steering_link</parent>
+      <child>front_left_wheel</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+    <joint name="front_right_wheel_joint" type="revolute">
+      <parent>front_right_steering_link</parent>
+      <child>front_right_wheel</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+    <joint name="rear_left_wheel_joint" type="revolute">
+      <parent>chassis</parent>
+      <child>rear_left_wheel</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+    <joint name="rear_right_wheel_joint" type="revolute">
+      <parent>chassis</parent>
+      <child>rear_right_wheel</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+    <plugin
+      filename="gz-sim-ackermann-steering-system"
+      name="gz::sim::systems::AckermannSteering">
+      <left_joint>front_left_wheel_joint</left_joint>
+      <left_joint>rear_left_wheel_joint</left_joint>
+      <right_joint>front_right_wheel_joint</right_joint>
+      <right_joint>rear_right_wheel_joint</right_joint>
+      <left_steering_joint>front_left_wheel_steering_joint</left_steering_joint>
+      <right_steering_joint>front_right_wheel_steering_joint</right_steering_joint>
+      <kingpin_width>1.7</kingpin_width>
+      <steering_limit>0.6</steering_limit>
+      <wheel_base>2.8</wheel_base>
+      <wheel_separation>1.7</wheel_separation>
+      <wheel_radius>0.35</wheel_radius>
+      <min_velocity>-5</min_velocity>
+      <max_velocity>10</max_velocity>
+      <min_acceleration>-4</min_acceleration>
+      <max_acceleration>4</max_acceleration>
+    </plugin>
+
+    <plugin
+      filename="gz-sim-apply-joint-force-system"
+      name="gz::sim::systems::ApplyJointForce">
+      <joint_name>front_left_wheel_joint</joint_name>
+    </plugin>
+
+    <plugin
+      filename="gz-sim-apply-joint-force-system"
+      name="gz::sim::systems::ApplyJointForce">
+      <joint_name>front_right_wheel_joint</joint_name>
+    </plugin>
+
+    <plugin
+      filename="gz-sim-python-system-loader-system"
+      name="gz::sim::systems::PythonSystemLoader">
+      <module_name>truck_gz_driver</module_name>
+    </plugin>
+  </model>
+</sdf>
