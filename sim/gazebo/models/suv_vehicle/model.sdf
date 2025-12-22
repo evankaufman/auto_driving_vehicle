@@ -276,31 +276,41 @@
 
     
 
-    <plugin
-      filename="gz-sim-ackermann-steering-system"
-      name="gz::sim::systems::AckermannSteering">
-      <left_joint>front_left_wheel_joint</left_joint>
-      <left_joint>rear_left_wheel_joint</left_joint>
-      <right_joint>front_right_wheel_joint</right_joint>
-      <right_joint>rear_right_wheel_joint</right_joint>
-      <left_steering_joint>front_left_wheel_steering_joint</left_steering_joint>
-      <right_steering_joint>front_right_wheel_steering_joint</right_steering_joint>
-      <kingpin_width>1.7</kingpin_width>
-      <steering_limit>0.6</steering_limit>
-      <wheel_base>2.8</wheel_base>
-      <wheel_separation>1.7</wheel_separation>
-      <wheel_radius>0.35</wheel_radius>
-      <min_velocity>-5</min_velocity>
-      <max_velocity>10</max_velocity>
-      <min_acceleration>-4</min_acceleration>
-      <max_acceleration>4</max_acceleration>
-    </plugin>
+    
 
     <plugin
       filename="gz-sim-joint-state-publisher-system"
       name="gz::sim::systems::JointStatePublisher"></plugin>
 
+        <plugin
+      filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+      <joint_name>front_left_wheel_steering_joint</joint_name>
+      <topic>steer_left_cmd</topic>
+      <p_gain>5</p_gain>
+      <i_gain>0.2</i_gain>
+      <d_gain>0.05</d_gain>
+      <i_max>0.5</i_max>
+      <i_min>-0.5</i_min>
+      <cmd_max>5</cmd_max>
+      <cmd_min>-5</cmd_min>
+    </plugin>
+
     <plugin
+      filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+      <joint_name>front_right_wheel_steering_joint</joint_name>
+      <topic>steer_right_cmd</topic>
+      <p_gain>5</p_gain>
+      <i_gain>0.2</i_gain>
+      <d_gain>0.05</d_gain>
+      <i_max>0.5</i_max>
+      <i_min>-0.5</i_min>
+      <cmd_max>5</cmd_max>
+      <cmd_min>-5</cmd_min>
+    </plugin>
+
+<plugin
       filename="gz-sim-apply-joint-force-system"
       name="gz::sim::systems::ApplyJointForce">
       <joint_name>front_left_wheel_joint</joint_name>
