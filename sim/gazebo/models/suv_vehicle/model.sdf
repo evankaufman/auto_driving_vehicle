@@ -67,7 +67,7 @@
     </link>
 
     <link name="front_left_wheel">
-      <pose>1.4 0.85 0.35 1.5708 0 0</pose>
+      <pose>1.4 0.85 0.35 0 0 0</pose>
       <inertial>
         <mass>20</mass>
         <inertia>
@@ -80,6 +80,7 @@
         </inertia>
       </inertial>
       <collision name="front_left_wheel_collision">
+        <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.35</radius>
@@ -88,10 +89,22 @@
         </geometry>
       </collision>
       
-    </link>
+          <visual name="front_left_wheel_spin_marker">
+        <pose>0.35 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.2 0.08 0.08</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.8 0.1 0.1 1</ambient>
+          <diffuse>0.8 0.1 0.1 1</diffuse>
+        </material>
+      </visual>
+</link>
 
     <link name="front_right_wheel">
-      <pose>1.4 -0.85 0.35 1.5708 0 0</pose>
+      <pose>1.4 -0.85 0.35 0 0 0</pose>
       <inertial>
         <mass>20</mass>
         <inertia>
@@ -104,6 +117,7 @@
         </inertia>
       </inertial>
       <collision name="front_right_wheel_collision">
+        <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.35</radius>
@@ -112,10 +126,22 @@
         </geometry>
       </collision>
       
-    </link>
+          <visual name="front_right_wheel_spin_marker">
+        <pose>0.35 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.2 0.08 0.08</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.8 0.1 1</ambient>
+          <diffuse>0.1 0.8 0.1 1</diffuse>
+        </material>
+      </visual>
+</link>
 
     <link name="rear_left_wheel">
-      <pose>-1.4 0.85 0.35 1.5708 0 0</pose>
+      <pose>-1.4 0.85 0.35 0 0 0</pose>
       <inertial>
         <mass>20</mass>
         <inertia>
@@ -128,6 +154,7 @@
         </inertia>
       </inertial>
       <collision name="rear_left_wheel_collision">
+        <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.35</radius>
@@ -136,10 +163,22 @@
         </geometry>
       </collision>
       
-    </link>
+          <visual name="rear_left_wheel_spin_marker">
+        <pose>0.35 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.2 0.08 0.08</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.8 1</ambient>
+          <diffuse>0.1 0.1 0.8 1</diffuse>
+        </material>
+      </visual>
+</link>
 
     <link name="rear_right_wheel">
-      <pose>-1.4 -0.85 0.35 1.5708 0 0</pose>
+      <pose>-1.4 -0.85 0.35 0 0 0</pose>
       <inertial>
         <mass>20</mass>
         <inertia>
@@ -152,6 +191,7 @@
         </inertia>
       </inertial>
       <collision name="rear_right_wheel_collision">
+        <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.35</radius>
@@ -160,7 +200,19 @@
         </geometry>
       </collision>
       
-    </link>
+          <visual name="rear_right_wheel_spin_marker">
+        <pose>0.35 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.2 0.08 0.08</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.8 0.8 0.1 1</ambient>
+          <diffuse>0.8 0.8 0.1 1</diffuse>
+        </material>
+      </visual>
+</link>
 
     <joint name="front_left_wheel_steering_joint" type="revolute">
       <parent>chassis</parent>
@@ -222,6 +274,8 @@
       </axis>
     </joint>
 
+    
+
     <plugin
       filename="gz-sim-ackermann-steering-system"
       name="gz::sim::systems::AckermannSteering">
@@ -243,6 +297,10 @@
     </plugin>
 
     <plugin
+      filename="gz-sim-joint-state-publisher-system"
+      name="gz::sim::systems::JointStatePublisher"></plugin>
+
+    <plugin
       filename="gz-sim-apply-joint-force-system"
       name="gz::sim::systems::ApplyJointForce">
       <joint_name>front_left_wheel_joint</joint_name>
@@ -252,6 +310,18 @@
       filename="gz-sim-apply-joint-force-system"
       name="gz::sim::systems::ApplyJointForce">
       <joint_name>front_right_wheel_joint</joint_name>
+    </plugin>
+
+    <plugin
+      filename="gz-sim-apply-joint-force-system"
+      name="gz::sim::systems::ApplyJointForce">
+      <joint_name>rear_left_wheel_joint</joint_name>
+    </plugin>
+
+    <plugin
+      filename="gz-sim-apply-joint-force-system"
+      name="gz::sim::systems::ApplyJointForce">
+      <joint_name>rear_right_wheel_joint</joint_name>
     </plugin>
 
     <plugin

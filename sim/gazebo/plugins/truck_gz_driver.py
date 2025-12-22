@@ -4,16 +4,19 @@ import gz.msgs10.double_pb2 as double_pb2
 
 class TruckGzDriver:
     def __init__(self):
-        self._torque = 80.0
+        self._torque = 100.0
         self._model_name = "suv_vehicle"
         self._joint_names = [
             "front_left_wheel_joint",
             "front_right_wheel_joint",
+            "rear_left_wheel_joint",
+            "rear_right_wheel_joint",
         ]
         self._node = transport.Node()
         self._publishers = []
         self._msg = double_pb2.Double()
         self._start_time = None
+        self._last_print_time = None
 
     def configure(self, entity, sdf, ecm, event_mgr):
         for joint in self._joint_names:
@@ -35,6 +38,9 @@ class TruckGzDriver:
             self._msg.data = self._torque
         for pub in self._publishers:
             pub.publish(self._msg)
+        if self._last_print_time is None or (info.sim_time - self._last_print_time).total_seconds() >= 1.0:
+            print(f"truck_gz_driver torque={self._msg.data:.1f} Nm")
+            self._last_print_time = info.sim_time
 
 
 def get_system():
