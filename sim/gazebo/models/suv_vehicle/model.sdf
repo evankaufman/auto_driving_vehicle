@@ -310,6 +310,16 @@
       <cmd_min>-5</cmd_min>
     </plugin>
 
+    <plugin
+      filename="gz-sim-odometry-publisher-system"
+      name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>odom</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <odom_topic>/model/suv_vehicle/odometry</odom_topic>
+      <link_name>chassis</link_name>
+      <publish_frequency>50</publish_frequency>
+    </plugin>
+
 <plugin
       filename="gz-sim-apply-joint-force-system"
       name="gz::sim::systems::ApplyJointForce">

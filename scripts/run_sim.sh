@@ -18,4 +18,9 @@ export GZ_SIM_RESOURCE_PATH="${PROJECT_ROOT}/sim/gazebo/models${GZ_SIM_RESOURCE_
 export GZ_SIM_SYSTEM_PLUGIN_PATH="${GZ_SYSTEM_PLUGIN_DIR}:${PROJECT_ROOT}/sim/gazebo/plugins${GZ_SIM_SYSTEM_PLUGIN_PATH:+:${GZ_SIM_SYSTEM_PLUGIN_PATH}}"
 export PYTHONPATH="${PROJECT_ROOT}/sim/gazebo/plugins${PYTHONPATH:+:${PYTHONPATH}}"
 export GZ_LOG_LEVEL=warn
+BRIDGE_LOG="${PROJECT_ROOT}/results/ros_gz_bridge.log"
+ros2 run ros_gz_bridge parameter_bridge \
+  /model/suv_vehicle/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry \
+  > "${BRIDGE_LOG}" 2>&1 &
+
 exec "${GZ_BIN}" sim -r "${PROJECT_ROOT}/sim/gazebo/worlds/car_world.sdf" 2> "${PROJECT_ROOT}/results/gz_sim.log"

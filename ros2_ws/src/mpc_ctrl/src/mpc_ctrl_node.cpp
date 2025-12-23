@@ -62,6 +62,8 @@ public:
     mpc_path_topic_ = declare_parameter<std::string>(
       "mpc_path_topic", "/mpc_ctrl/mpc_path");
 
+    use_dummy_cmd_ = declare_parameter<bool>("use_dummy_cmd", true);
+
     odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
       odom_topic_, rclcpp::SensorDataQoS(),
       std::bind(&MpcCtrlNode::on_odom, this, std::placeholders::_1));
@@ -134,6 +136,36 @@ private:
     return ref;
   }
 
+  DriveCommand dummy_cmd(double t_sec)
+  {
+    DriveCommand cmd;
+    const double max_torque = 100.0;
+    if (t_sec < 3.0) {
+      cmd.torque_fl = 0.0;
+      cmd.torque_fr = 0.0;
+      cmd.torque_rl = 0.0;
+      cmd.torque_rr = 0.0;
+    } else if (t_sec < 13.0) {
+      const double ramp = (t_sec - 3.0) / 10.0;
+      const double torque = max_torque * ramp;
+      cmd.torque_fl = torque;
+      cmd.torque_fr = torque;
+      cmd.torque_rl = torque;
+      cmd.torque_rr = torque;
+    } else {
+      cmd.torque_fl = max_torque;
+      cmd.torque_fr = max_torque;
+      cmd.torque_rl = max_torque;
+      cmd.torque_rr = max_torque;
+    }
+
+    const double steer_max = 10.0 * M_PI / 180.0;
+    const double omega = 2.0 * M_PI / 10.0;
+    cmd.steering_angle = 0.5 * (1.0 + std::sin(omega * t_sec)) * steer_max;
+    cmd.steering_rate = 0.5 * std::cos(omega * t_sec) * steer_max * omega;
+    return cmd;
+  }
+
   DriveCommand mpc_controller(
     const FrenetState &current,
     const std::vector<FrenetState> &reference)
@@ -186,7 +218,18 @@ private:
 
     FrenetState frenet = cartesian_to_frenet(latest_state_);
     auto reference = reference_trajectory(frenet);
-    DriveCommand cmd = mpc_controller(frenet, reference);
+
+    DriveCommand cmd;
+    if (use_dummy_cmd_) {
+      if (!have_start_time_) {
+        start_time_ = now();
+        have_start_time_ = true;
+      }
+      const double t_sec = (now() - start_time_).seconds();
+      cmd = dummy_cmd(t_sec);
+    } else {
+      cmd = mpc_controller(frenet, reference);
+    }
 
     std_msgs::msg::Float64MultiArray out;
     out.data = {
@@ -206,6 +249,10 @@ private:
   VehicleState latest_state_;
   rclcpp::Time last_stamp_;
   bool have_state_{false};
+
+  bool use_dummy_cmd_{true};
+  bool have_start_time_{false};
+  rclcpp::Time start_time_;
 
   std::string odom_topic_;
   std::string drive_cmd_topic_;
