@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/odometry.hpp"
@@ -16,15 +17,9 @@ struct VehicleState
 {
   double x{0.0};
   double y{0.0};
-  double z{0.0};
-  double roll{0.0};
-  double pitch{0.0};
   double yaw{0.0};
   double vx{0.0};
   double vy{0.0};
-  double vz{0.0};
-  double wx{0.0};
-  double wy{0.0};
   double wz{0.0};
 };
 
@@ -79,46 +74,48 @@ public:
 private:
   void on_odom(const nav_msgs::msg::Odometry::SharedPtr msg)
   {
+    // Horizontal position comes straight from gz msg
     latest_state_.x = msg->pose.pose.position.x;
     latest_state_.y = msg->pose.pose.position.y;
-    latest_state_.z = msg->pose.pose.position.z;
 
+    // Get yaw from quaternion
     const double qx = msg->pose.pose.orientation.x;
     const double qy = msg->pose.pose.orientation.y;
     const double qz = msg->pose.pose.orientation.z;
     const double qw = msg->pose.pose.orientation.w;
-
-    const double sinr_cosp = 2.0 * (qw * qx + qy * qz);
-    const double cosr_cosp = 1.0 - 2.0 * (qx * qx + qy * qy);
-    latest_state_.roll = std::atan2(sinr_cosp, cosr_cosp);
-
-    const double sinp = 2.0 * (qw * qy - qz * qx);
-    if (std::abs(sinp) >= 1.0) {
-      latest_state_.pitch = std::copysign(M_PI / 2.0, sinp);
-    } else {
-      latest_state_.pitch = std::asin(sinp);
-    }
-
     const double siny_cosp = 2.0 * (qw * qz + qx * qy);
     const double cosy_cosp = 1.0 - 2.0 * (qy * qy + qz * qz);
     latest_state_.yaw = std::atan2(siny_cosp, cosy_cosp);
 
-    latest_state_.vx = msg->twist.twist.linear.x;
-    latest_state_.vy = msg->twist.twist.linear.y;
-    latest_state_.vz = msg->twist.twist.linear.z;
-    latest_state_.wx = msg->twist.twist.angular.x;
-    latest_state_.wy = msg->twist.twist.angular.y;
+    // Twist is expressed wrt body frame, so bring that to inertial frame
+    const double cos_yaw = std::cos(latest_state_.yaw);
+    const double sin_yaw = std::sin(latest_state_.yaw);
+    latest_state_.vx = cos_yaw * msg->twist.twist.linear.x - sin_yaw * msg->twist.twist.linear.y;
+    latest_state_.vy = sin_yaw * msg->twist.twist.linear.x + cos_yaw * msg->twist.twist.linear.y;
+
+    // Assuming z is always up, angular velocity can be taken directly from gz msg
     latest_state_.wz = msg->twist.twist.angular.z;
 
     last_stamp_ = msg->header.stamp;
     have_state_ = true;
   }
 
-  FrenetState cartesian_to_frenet(const VehicleState &state)
+  /// @brief  Converts Cartesian coordinates to Frenet Coordinates
+  /// @param state 
+  /// @return Freenet coordinates
+  FrenetState cartesian_to_frenet(const VehicleState &cart_state)
   {
-    // TODO: Implement Frenet conversion.
-    (void)state;
-    return FrenetState{};
+    FrenetState frenet_state;
+
+    // Let's start simple... follow x-axis at 1 m/sec
+    frenet_state.s = 0.0;
+    frenet_state.s_dot = cart_state.vx;
+
+    frenet_state.d = cart_state.y;
+    frenet_state.d_dot = cart_state.vy;
+    frenet_state.d_ddot = 0.0; // TODO: maybe pull this from estimation or last cmd
+
+    return frenet_state;
   }
 
   std::vector<FrenetState> reference_trajectory(const FrenetState &current)
@@ -159,10 +156,9 @@ private:
       cmd.torque_rr = max_torque;
     }
 
-    const double steer_max = 10.0 * M_PI / 180.0;
-    const double omega = 2.0 * M_PI / 10.0;
-    cmd.steering_angle = 0.5 * (1.0 + std::sin(omega * t_sec)) * steer_max;
-    cmd.steering_rate = 0.5 * std::cos(omega * t_sec) * steer_max * omega;
+    cmd.steering_angle = 10.0 * M_PI / 180.0;
+    cmd.steering_rate = 0.0;
+
     return cmd;
   }
 
@@ -217,6 +213,14 @@ private:
     }
 
     FrenetState frenet = cartesian_to_frenet(latest_state_);
+    std::cout << "Frenet state: (s: " << frenet.s
+              << ", s_dot: " << frenet.s_dot
+              << ", d: " << frenet.d
+              << ", d_dot: " << frenet.d_dot
+              << ", d_ddot: " << frenet.d_ddot
+              << ")"
+              << std::endl;
+    // FrenetState frenet = cartesian_to_frenet(smooth_along_x_1mps, 1.0, latest_state_);
     auto reference = reference_trajectory(frenet);
 
     DriveCommand cmd;
@@ -227,6 +231,7 @@ private:
       }
       const double t_sec = (now() - start_time_).seconds();
       cmd = dummy_cmd(t_sec);
+      std::cout << "cmd.steering_angle = " << cmd.steering_angle << std::endl;
     } else {
       cmd = mpc_controller(frenet, reference);
     }
